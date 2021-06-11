@@ -1,0 +1,31 @@
+{
+  "name": "koa-thrift",
+  "version": "1.0.0",
+  "description": "The thrift middle of Koa.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cooperhsiung/koa-thrift.git"
+  },
+  "keywords": [
+    "koa",
+    "thrift"
+  ],
+  "author": "cooperhsiung",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cooperhsiung/koa-thrift/issues"
+  },
+  "homepage": "https://github.com/cooperhsiung/koa-thrift#readme",
+  "dependencies": {
+    "koa-compose": "^4.1.0",
+    "thrift": "^0.14.1"
+  },
+  "devDependencies": {
+    "@types/koa-compose": "^3.2.5",
+    "@types/thrift": "^0.10.10"
+  }
+}
