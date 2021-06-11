@@ -1,80 +1,94 @@
 /**
  * Created by Cooper on 2021/06/11.
  */
-import thrift from 'thrift';
 import compose from 'koa-compose';
-import { Context, Middleware } from 'koa';
+import Koa, { Context } from 'koa';
+import net, { Socket } from 'net';
 
-function getMethods(iClient: any) {
-  let result = [];
-  for (const prop of Object.getOwnPropertyNames(iClient.prototype)) {
-    if (
-      ['seqid', 'new_seqid'].includes(prop) ||
-      prop.startsWith('send_') ||
-      prop.startsWith('recv_')
-    ) {
-      continue;
-    }
-    result.push(prop);
-  }
-  return result;
-}
+const respond = require('./respond');
 
-// type Context = {
-//   request?: any;
-//   body?: any;
-//   response?: any;
-//   originalUrl?: string;
-//   path?: string;
-// };
+type Options = {
+  env?: string;
+  keys?: string[];
+  proxy?: boolean;
+  subdomainOffset?: number;
+  proxyIpHeader?: string;
+  maxIpsCount?: number;
+};
 
-class App {
+class Application extends Koa {
   service: any;
-  middlewares: Middleware[];
-  processor: any;
-  constructor(srv: any) {
-    this.middlewares = [];
-    this.service = srv;
+
+  constructor(options: Options & { service: any }) {
+    super(options);
+    this.service = options.service;
   }
 
-  use(handler: Middleware) {
-    this.middlewares.push(handler);
+  // @ts-ignore
+  createContext(socket: Socket, method: any) {
+    const context = {
+      path: '/' + method,
+      originalUrl: '/' + method,
+    } as Context;
+    const request = (context.request = Object.create(this.request));
+    const response = (context.response = Object.create(this.response));
+    context.app = request.app = response.app = this as any;
+    context.req = request.req = response.req = { socket: socket } as any;
+    context.res = request.res = response.res = { socket: socket } as any;
+    request.ctx = response.ctx = context;
+    request.response = response;
+    response.request = request;
+    // context.originalUrl = request.originalUrl = req.url;
+    context.state = {};
+    return context;
   }
 
-  listen(args: any) {
-    const handler = compose(this.middlewares);
-    // console.log('========= this.service', this.service);
-    const methods = getMethods(this.service.Client);
-    // console.log('========= methods', methods);
+  // @ts-ignore
+  callback() {
+    const fn = compose(this.middleware);
+    if (!this.listenerCount('error')) this.on('error', this.onerror);
 
-    const noop = (method: string) =>
-      function (req: any, result: any) {
-        console.log('========= req', req);
-        const ctx = {
-          request: req,
-          originalUrl: '/' + method,
-          path: '/' + method,
-        } as Context;
-        handler(ctx)
-          .then((ret: any) => {
-            if (ctx.body === undefined) {
-              return result(new Error('Not Found'));
-            }
-            result(null, ctx.body);
-          })
-          .catch((err: any) => {
-            console.error(err);
-            result(err);
-          });
-      };
-    const handlers = methods.reduce((s, v) => {
-      s[v] = noop(v);
-      return s;
-    }, {} as any);
+    return (socket: Socket) => {
+      const processor = new this.service.Processor(
+        new Proxy(this.service.Client, {
+          get: (target: any, method: string) => {
+            return this.handleRequest(socket, fn)(method);
+          },
+        })
+      );
+      return respond.call(this, socket, processor);
+    };
+  }
 
-    const server = thrift.createServer(this.service, handlers);
-    return server.listen(args);
+  handleRequest(socket: Socket, fnMiddleware: any) {
+    return (method: string) => (request: any, result: any) => {
+      const ctx = this.createContext(socket, method);
+      ctx.request = request;
+      ctx.socket = socket;
+      ctx.ip = socket.remoteAddress || '';
+      Object.defineProperty(ctx, 'body', {
+        set(v: any) {
+          ctx.response = v;
+          return v;
+        },
+      });
+
+      fnMiddleware(ctx)
+        .then(() => {
+          if (ctx.response === undefined) {
+            return result(new Error('Not Found'));
+          }
+          result(null, ctx.response);
+        })
+        .catch(result);
+    };
+  }
+
+  // @ts-ignore
+  listen(...args: any) {
+    const server = net.createServer(this.callback());
+    return server.listen(...args);
   }
 }
 
-export default App;
+export default Application;

@@ -1,6 +1,6 @@
 {
   "name": "koa-thrift",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The thrift middle of Koa.",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/cooperhsiung/koa-thrift#readme",
   "dependencies": {
+    "koa": "^2.13.1",
     "koa-compose": "^4.1.0",
     "thrift": "^0.14.1"
   },
