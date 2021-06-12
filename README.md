@@ -89,6 +89,10 @@ function sleep(delay = 1000) {
 }
 ```
 
+## Examples
+
+examples with client are listed at [examples](https://github.com/cooperhsiung/koa-thrift/tree/master/examples)
+
 ## Todo
 
 - [ ] middleware
