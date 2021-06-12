@@ -13,7 +13,7 @@ npm i koa-thrift -S
 
 ## Usage
 
-simple app
+[simple app](https://github.com/cooperhsiung/koa-thrift/blob/master/examples/ex1.ts)
 
 ```typescript
 var UnpkgService = require('./gen-nodejs/UnpkgService');
@@ -33,7 +33,7 @@ app.listen(9090);
 console.log('listening on 9090...');
 ```
 
-with route
+[with route](https://github.com/cooperhsiung/koa-thrift/blob/master/examples/ex2.ts)
 
 ```typescript
 var UnpkgService = require('./gen-nodejs/UnpkgService');
@@ -55,7 +55,7 @@ app.listen(9090);
 console.log('listening on 9090...');
 ```
 
-use middleware
+[use middleware](https://github.com/cooperhsiung/koa-thrift/blob/master/examples/ex3.ts)
 
 ```typescript
 var UnpkgService = require('./gen-nodejs/UnpkgService');
