@@ -69,9 +69,7 @@ const app = new KoaThrift({ service: UnpkgService });
 app.use(async (ctx, next) => {
   const start = Date.now();
   await next();
-  console.log(
-    `process ${ctx.path} request from ${ctx.ip} cost ${Date.now() - start}ms`
-  );
+  console.log( `process ${ctx.path} request from ${ctx.ip} cost ${Date.now() - start}ms`);
 });
 
 // with route
