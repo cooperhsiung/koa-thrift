@@ -3,6 +3,8 @@
 [![NPM Version][npm-image]][npm-url]
 [![Node Version][node-image]][node-url]
 
+The thrift middle of Koa.
+
 ## Installation
 
 ```bash
@@ -14,38 +16,89 @@ npm i koa-thrift -S
 simple app
 
 ```typescript
-import KoaThrift from 'koa-thrift'
-const app = new KoaThrift();
+var UnpkgService = require('./gen-nodejs/UnpkgService');
+import { Context } from 'koa';
+import KoaThrift from 'koa-thrift';
 
-app.use((ctx) => {
+const app = new KoaThrift({ service: UnpkgService });
+
+// not found
+app.use((ctx: Context) => {
   console.log('ctx.request: ', ctx.request);
-  ctx.body = { Data: 'heeleo11' };
 });
 
+// result -> InvalidOperation TApplicationException: Not Found
+
 app.listen(9090);
+console.log('listening on 9090...');
 ```
 
-with router
+with route
 
 ```typescript
-import KoaThrift from 'koa-thrift'
+var UnpkgService = require('./gen-nodejs/UnpkgService');
 const mount = require('koa-mount');
-const app = new KoaThrift();
+import { Context } from 'koa';
+import KoaThrift from 'koa-thrift';
 
-app.use( mount('/Publish',  (ctx: Context) => {
+const app = new KoaThrift({ service: UnpkgService });
+
+// with route
+app.use(
+  mount('/Publish', function (ctx: Context) {
     console.log('ctx.request: ', ctx.request);
-    ctx.body = { Data: 'Publish2' };
-  }),
+    ctx.body = { code: 0, message: 'publish success' };
+  })
 );
 
 app.listen(9090);
+console.log('listening on 9090...');
 ```
 
-## Others
+use middleware
+
+```typescript
+var UnpkgService = require('./gen-nodejs/UnpkgService');
+const mount = require('koa-mount');
+import { Context } from 'koa';
+import KoaThrift from 'koa-thrift';
+
+const app = new KoaThrift({ service: UnpkgService });
+
+// use middleware
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  console.log(
+    `process ${ctx.path} request from ${ctx.ip} cost ${Date.now() - start}ms`
+  );
+});
+
+// with route
+app.use(
+  mount('/Publish', async (ctx: Context) => {
+    console.log('ctx.request: ', ctx.request);
+    await sleep(300);
+    ctx.body = { code: 0, message: 'publish success' };
+  })
+);
+
+app.listen(9090);
+console.log('listening on 9090...');
+
+function sleep(delay = 1000) {
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
+```
 
 ## Todo
 
-- [ ] xxxx
+- [ ] middleware
+- [ ] wrap client
+
+## Others
+
+[Thrift Missing Guide](https://diwakergupta.github.io/thrift-missing-guide)
 
 ## License
 

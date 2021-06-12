@@ -4,3 +4,4 @@
 .editorconfig
 package-lock.json
 index.ts
+examples/

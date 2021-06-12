@@ -1,8 +1,8 @@
 /**
  * Created by Cooper on 2021/06/11.
  */
-import compose from 'koa-compose';
 import Koa, { Context } from 'koa';
+import compose from 'koa-compose';
 import net, { Socket } from 'net';
 
 const respond = require('./respond');
@@ -68,17 +68,19 @@ class Application extends Koa {
       ctx.ip = socket.remoteAddress || '';
       Object.defineProperty(ctx, 'body', {
         set(v: any) {
-          ctx.response = v;
-          return v;
+          this.response = this._body = v;
+        },
+        get() {
+          return this._body;
         },
       });
 
       fnMiddleware(ctx)
         .then(() => {
-          if (ctx.response === undefined) {
+          if (ctx.body === undefined) {
             return result(new Error('Not Found'));
           }
-          result(null, ctx.response);
+          result(null, ctx.body);
         })
         .catch(result);
     };
