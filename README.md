@@ -69,7 +69,7 @@ const app = new KoaThrift({ service: UnpkgService });
 app.use(async (ctx, next) => {
   const start = Date.now();
   await next();
-  console.log( `process ${ctx.path} request from ${ctx.ip} cost ${Date.now() - start}ms`);
+  console.log(`process ${ctx.path} request from ${ctx.ip} cost ${Date.now() - start}ms`);
 });
 
 // with route
@@ -89,18 +89,25 @@ function sleep(delay = 1000) {
 }
 ```
 
+## Generate code
+
+install thrift binary on macOS with [brew](https://formulae.brew.sh/formula/thrift)
+
+```sh
+cd ./examples
+thrift -version  # Thrift version 0.13.0
+thrift -r --gen js:node unpkg.thrift
+```
+
 ## Examples
 
 examples with client are listed at [examples](https://github.com/cooperhsiung/koa-thrift/tree/master/examples)
 
-## Todo
-
-- [ ] middleware
-- [ ] wrap client
-
 ## Others
 
 [Thrift Missing Guide](https://diwakergupta.github.io/thrift-missing-guide)
+
+[more node.js examples from official](https://github.com/apache/thrift/tree/master/lib/nodejs)
 
 ## License
 
