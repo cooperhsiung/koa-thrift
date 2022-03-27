@@ -1,6 +1,6 @@
 {
   "name": "koa-thrift",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "The thrift middle of Koa.",
   "main": "index.js",
   "scripts": {
