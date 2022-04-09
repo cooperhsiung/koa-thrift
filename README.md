@@ -3,7 +3,7 @@
 [![NPM Version][npm-image]][npm-url]
 [![Node Version][node-image]][node-url]
 
-The thrift middle of Koa.
+The thrift middle of Koa, foundation for [koa-suit](https://www.npmjs.com/package/koa-suit)
 
 ## Installation
 
